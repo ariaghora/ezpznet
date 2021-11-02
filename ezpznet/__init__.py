@@ -1,3 +1,2 @@
-import .animegan
-import .sketchgan
 from .ezpznet import *
+from . import animegan, sketchgan
