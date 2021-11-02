@@ -9,7 +9,6 @@ from torch import nn
 
 from ezpznet import EzPzNet, download_weight
 
-
 URL_WEBTOON = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131925&authkey=AFr6EizN764A3u0"
 URL_SHINKAI = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131929&authkey=ANQyvelJifvCiU8"
 URL_PAPRIKA = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131930&authkey=ACbm3QKgoAA5w3k"
