@@ -1,11 +1,11 @@
 import os
+
 import torch
 import torch.nn as nn
 from PIL import Image
 from torchvision import transforms
 
-from ..ezpznet import EzPzNet, download_weight
-
+from ezpznet import EzPzNet, download_weight
 
 URL_WEIGHT = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131927&authkey=AP3wa4xmfYsocDU"
 
