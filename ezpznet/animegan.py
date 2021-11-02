@@ -179,13 +179,13 @@ class AnimeGAN(EzPzNet):
             download_weight(URL_WEBTOON, weights_name_webtoon)
             weight_path = weights_name_webtoon
         elif self.style == "shinkai":
-            download_weight(URL_SHINKAI, weights_name_webtoon)
+            download_weight(URL_SHINKAI, weights_name_shinkai)
             weight_path = weights_name_shinkai
         elif self.style == "paprika":
-            download_weight(URL_PAPRIKA, weights_name_webtoon)
+            download_weight(URL_PAPRIKA, weights_name_paprika)
             weight_path = weights_name_paprika
         elif self.style == "hayao":
-            download_weight(URL_HAYAO, weights_name_webtoon)
+            download_weight(URL_HAYAO, weights_name_hayao)
             weight_path = weights_name_hayao
         else:
             raise Exception("Style is not supported")
