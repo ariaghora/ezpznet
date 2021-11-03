@@ -1,2 +1,2 @@
+from . import animegan, sketchgan, srgan
 from .ezpznet import *
-from . import animegan, sketchgan
