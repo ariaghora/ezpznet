@@ -51,12 +51,12 @@ plt.imshow(pred.squeeze(), cmap="gray")
   ```python
   from ezpznet.animegan import AnimeGAN, load_image
 
-  net = AnimeGAN(style="webtoon")
+  net = AnimeGAN(style="facepaint")
   image = load_image(image_path)
   pred = net.predict(image)
   plt.imshow(pred)
   ```
-  When `style="webtoon"`:
+  When `style="facepaint"`:
 
   <p align="center">
     <img src="https://i.ibb.co/c871Qjc/elon.png" width=600/>
@@ -69,7 +69,7 @@ plt.imshow(pred.squeeze(), cmap="gray")
   <p>
 
 
-  There are 4 styles available: `webtoon` (default), `shinkai`, `hayao`, and `paprika`.
+  There are 4 styles available: `facepaint` (default), `webtoon`, `shinkai`, `hayao`, and `paprika`.
   
   **References**
   - PyTorch implementation is adopted from [bryandlee](https://github.com/bryandlee/animegan2-pytorch)
