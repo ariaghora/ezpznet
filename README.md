@@ -96,4 +96,8 @@ plt.imshow(pred.squeeze(), cmap="gray")
   <p align="center">
     <img src="https://i.ibb.co/FkpkdBK/sr-comparison.png" width=700/>
   <p>
+  
+  **References**
+  - PyTorch implementation is adopted from [dongheehand](https://github.com/dongheehand/SRGAN-PyTorch)
+  - Paper: Ledig et al., Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network
     
