@@ -18,143 +18,197 @@ URL_WEIGHT = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D19
 def load_image(image_path: str):
     lr_image = Image.open(image_path)
     lr_tensor = torchvision.transforms.functional.to_tensor(lr_image).unsqueeze(0)
-    # lr_tensor = lr_tensor.half()
     return lr_tensor
 
 
-class ResidualConvBlock(nn.Module):
-    """Implements residual conv function.
-    Args:
-        channels (int): Number of channels in the input image.
-    """
-
-    def __init__(self, channels: int) -> None:
-        super(ResidualConvBlock, self).__init__()
-        self.rc_block = nn.Sequential(
-            nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
-            nn.BatchNorm2d(channels),
-            nn.PReLU(),
-            nn.Conv2d(channels, channels, (3, 3), (1, 1), (1, 1), bias=False),
-            nn.BatchNorm2d(channels),
+class _conv(nn.Conv2d):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, bias):
+        super(_conv, self).__init__(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=(kernel_size) // 2,
+            bias=True,
         )
 
-    def forward(self, x: Tensor) -> Tensor:
-        identity = x
+        self.weight.data = torch.normal(
+            torch.zeros((out_channels, in_channels, kernel_size, kernel_size)), 0.02
+        )
+        self.bias.data = torch.zeros((out_channels))
 
-        out = self.rc_block(x)
-        out = out + identity
+        for p in self.parameters():
+            p.requires_grad = True
+
+
+class conv(nn.Module):
+    def __init__(
+        self,
+        in_channel,
+        out_channel,
+        kernel_size,
+        BN=False,
+        act=None,
+        stride=1,
+        bias=True,
+    ):
+        super(conv, self).__init__()
+        m = []
+        m.append(
+            _conv(
+                in_channels=in_channel,
+                out_channels=out_channel,
+                kernel_size=kernel_size,
+                stride=stride,
+                padding=(kernel_size) // 2,
+                bias=True,
+            )
+        )
+
+        if BN:
+            m.append(nn.BatchNorm2d(num_features=out_channel))
+
+        if act is not None:
+            m.append(act)
+
+        self.body = nn.Sequential(*m)
+
+    def forward(self, x):
+        out = self.body(x)
+        return out
+
+
+class ResBlock(nn.Module):
+    def __init__(self, channels, kernel_size, act=nn.ReLU(inplace=True), bias=True):
+        super(ResBlock, self).__init__()
+        m = []
+        m.append(conv(channels, channels, kernel_size, BN=True, act=act))
+        m.append(conv(channels, channels, kernel_size, BN=True, act=None))
+        self.body = nn.Sequential(*m)
+
+    def forward(self, x):
+        res = self.body(x)
+        res += x
+        return res
+
+
+class BasicBlock(nn.Module):
+    def __init__(
+        self,
+        in_channels,
+        out_channels,
+        kernel_size,
+        num_res_block,
+        act=nn.ReLU(inplace=True),
+    ):
+        super(BasicBlock, self).__init__()
+        m = []
+
+        self.conv = conv(in_channels, out_channels, kernel_size, BN=False, act=act)
+        for i in range(num_res_block):
+            m.append(ResBlock(out_channels, kernel_size, act))
+
+        m.append(conv(out_channels, out_channels, kernel_size, BN=True, act=None))
+
+        self.body = nn.Sequential(*m)
+
+    def forward(self, x):
+        res = self.conv(x)
+        out = self.body(res)
+        out += res
 
         return out
 
 
-class Discriminator(nn.Module):
-    def __init__(self) -> None:
-        super(Discriminator, self).__init__()
-        self.features = nn.Sequential(
-            # input size. (3) x 96 x 96
-            nn.Conv2d(3, 64, (3, 3), (1, 1), (1, 1), bias=True),
-            nn.LeakyReLU(0.2, True),
-            # state size. (64) x 48 x 48
-            nn.Conv2d(64, 64, (3, 3), (2, 2), (1, 1), bias=False),
-            nn.BatchNorm2d(64),
-            nn.LeakyReLU(0.2, True),
-            nn.Conv2d(64, 128, (3, 3), (1, 1), (1, 1), bias=False),
-            nn.BatchNorm2d(128),
-            nn.LeakyReLU(0.2, True),
-            # state size. (128) x 24 x 24
-            nn.Conv2d(128, 128, (3, 3), (2, 2), (1, 1), bias=False),
-            nn.BatchNorm2d(128),
-            nn.LeakyReLU(0.2, True),
-            nn.Conv2d(128, 256, (3, 3), (1, 1), (1, 1), bias=False),
-            nn.BatchNorm2d(256),
-            nn.LeakyReLU(0.2, True),
-            # state size. (256) x 12 x 12
-            nn.Conv2d(256, 256, (3, 3), (2, 2), (1, 1), bias=False),
-            nn.BatchNorm2d(256),
-            nn.LeakyReLU(0.2, True),
-            nn.Conv2d(256, 512, (3, 3), (1, 1), (1, 1), bias=False),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(0.2, True),
-            # state size. (512) x 6 x 6
-            nn.Conv2d(512, 512, (3, 3), (2, 2), (1, 1), bias=False),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(0.2, True),
-        )
+class Upsampler(nn.Module):
+    def __init__(self, channel, kernel_size, scale, act=nn.ReLU(inplace=True)):
+        super(Upsampler, self).__init__()
+        m = []
+        m.append(conv(channel, channel * scale * scale, kernel_size))
+        m.append(nn.PixelShuffle(scale))
 
-        self.classifier = nn.Sequential(
-            nn.Linear(512 * 6 * 6, 1024),
-            nn.LeakyReLU(0.2, True),
-            nn.Linear(1024, 1),
-            nn.Sigmoid(),
-        )
+        if act is not None:
+            m.append(act)
 
-    def forward(self, x: Tensor) -> Tensor:
-        out = self.features(x)
-        out = torch.flatten(out, 1)
-        out = self.classifier(out)
+        self.body = nn.Sequential(*m)
 
+    def forward(self, x):
+        out = self.body(x)
+        return out
+
+
+class discrim_block(nn.Module):
+    def __init__(
+        self, in_feats, out_feats, kernel_size, act=nn.LeakyReLU(inplace=True)
+    ):
+        super(discrim_block, self).__init__()
+        m = []
+        m.append(conv(in_feats, out_feats, kernel_size, BN=True, act=act))
+        m.append(conv(out_feats, out_feats, kernel_size, BN=True, act=act, stride=2))
+        self.body = nn.Sequential(*m)
+
+    def forward(self, x):
+        out = self.body(x)
         return out
 
 
 class Generator(nn.Module):
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        img_feat=3,
+        n_feats=64,
+        kernel_size=3,
+        num_block=16,
+        act=nn.PReLU(),
+        scale=4,
+    ):
         super(Generator, self).__init__()
-        # First conv layer.
-        self.conv_block1 = nn.Sequential(
-            nn.Conv2d(3, 64, (9, 9), (1, 1), (4, 4)), nn.PReLU()
+
+        self.conv01 = conv(
+            in_channel=img_feat, out_channel=n_feats, kernel_size=9, BN=False, act=act
         )
 
-        # Features trunk blocks.
-        trunk = []
-        for _ in range(16):
-            trunk.append(ResidualConvBlock(64))
-        self.trunk = nn.Sequential(*trunk)
+        resblocks = [
+            ResBlock(channels=n_feats, kernel_size=3, act=act) for _ in range(num_block)
+        ]
+        self.body = nn.Sequential(*resblocks)
 
-        # Second conv layer.
-        self.conv_block2 = nn.Sequential(
-            nn.Conv2d(64, 64, (3, 3), (1, 1), (1, 1), bias=False), nn.BatchNorm2d(64)
+        self.conv02 = conv(
+            in_channel=n_feats, out_channel=n_feats, kernel_size=3, BN=True, act=None
         )
 
-        # Upscale conv block.
-        self.upsampling = nn.Sequential(
-            nn.Conv2d(64, 256, (3, 3), (1, 1), (1, 1)),
-            nn.PixelShuffle(2),
-            nn.PReLU(),
-            nn.Conv2d(64, 256, (3, 3), (1, 1), (1, 1)),
-            nn.PixelShuffle(2),
-            nn.PReLU(),
+        if scale == 4:
+            upsample_blocks = [
+                Upsampler(channel=n_feats, kernel_size=3, scale=2, act=act)
+                for _ in range(2)
+            ]
+        else:
+            upsample_blocks = [
+                Upsampler(channel=n_feats, kernel_size=3, scale=scale, act=act)
+            ]
+
+        self.tail = nn.Sequential(*upsample_blocks)
+
+        self.last_conv = conv(
+            in_channel=n_feats,
+            out_channel=img_feat,
+            kernel_size=3,
+            BN=False,
+            act=nn.Tanh(),
         )
 
-        # Output layer.
-        self.conv_block3 = nn.Conv2d(64, 3, (9, 9), (1, 1), (4, 4))
+    def forward(self, X):
+        X = self.conv01(X)
+        _skip_connection = X
 
-        # Initialize neural network weights.
-        self._initialize_weights()
+        X = self.body(X)
+        X = self.conv02(X)
+        feat = X + _skip_connection
 
-    def forward(self, x: Tensor) -> Tensor:
-        return self._forward_impl(x)
+        X = self.tail(feat)
+        X = self.last_conv(X)
 
-    # Support torch.script function.
-    def _forward_impl(self, x: Tensor) -> Tensor:
-        out1 = self.conv_block1(x)
-        out = self.trunk(out1)
-        out2 = self.conv_block2(out)
-        out = out1 + out2
-        out = self.upsampling(out)
-        out = self.conv_block3(out)
-
-        return out
-
-    def _initialize_weights(self) -> None:
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.kaiming_normal_(m.weight)
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
-                m.weight.data *= 0.1
-            elif isinstance(m, nn.BatchNorm2d):
-                nn.init.constant_(m.weight, 1)
-                m.weight.data *= 0.1
+        return X, feat
 
 
 class SRGAN(EzPzNet):
@@ -164,10 +218,11 @@ class SRGAN(EzPzNet):
         self.net = Generator()
 
         weights_dir = os.path.join(os.path.dirname(__file__), "weights")
-        weights_name = os.path.join(weights_dir, "srgan-imagenet.pt")
+        weights_name = os.path.join(weights_dir, "srgan.pt")
         download_weight(URL_WEIGHT, weights_name)
         self.net.load_state_dict(torch.load(weights_name, map_location=self.device))
 
     def predict(self, X):
         with torch.no_grad():
-            return self.net(X)
+            pred, _ = self.net(X)
+            return pred
