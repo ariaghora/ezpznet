@@ -16,9 +16,10 @@ URL_WEIGHT = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D19
 
 
 def load_image(image_path: str):
-    lr_image = Image.open(image_path)
-    lr_tensor = torchvision.transforms.functional.to_tensor(lr_image).unsqueeze(0)
-    return lr_tensor
+    image = np.array(Image.open(image_path))
+    image = (image / 127.5) - 1.0
+    image = image.transpose(2, 0, 1).astype(np.float32)[None, ...]
+    return image
 
 
 class _conv(nn.Conv2d):
