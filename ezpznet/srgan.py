@@ -20,7 +20,7 @@ def load_image(image_path: str):
     image = np.array(Image.open(image_path))
     image = (image / 127.5) - 1.0
     image = image.transpose(2, 0, 1).astype(np.float32)[None, ...]
-    return image
+    return torch.from_numpy(image)
 
 
 class _conv(nn.Conv2d):
