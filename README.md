@@ -1,5 +1,19 @@
 Interesting and reproducible research works should be conserved.
-This repository wraps a collection of deep neural network models into a simple and uniform API.
+Unfortunately, too many model repositories provide different ways to use.
+It is an obstacle for people who just want to use them right away, especially for those without luxury to (re)train big deep learning models.
+This repository aims to wrap a collection of deep neural network models into a simple and consistent API.
+
+## Installation
+
+```
+pip install git+https://github.com/ariaghora/ezpznet
+```
+It depends mainly on pytorch and torchvision. 
+
+## Pretrained weights
+Each model will download its own pretrained weight (once at the first time) at initialization.
+I host them in my personal OneDrive storage. 
+Let me know if you have better options.
 
 ## Available models
 
