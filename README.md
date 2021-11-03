@@ -1,6 +1,13 @@
 Interesting and reproducible research works should be conserved.
 This repository wraps a collection of deep neural network models into a simple and uniform API.
 
+## Installation
+
+```
+pip install git+https://github.com/ariaghora/ezpznet
+```
+It depends mainly on pytorch and torchvision. 
+
 ## Available models
 
 ### SketchGAN
