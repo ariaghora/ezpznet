@@ -212,11 +212,13 @@ class Generator(nn.Module):
 
 
 class SRGAN(EzPzNet):
-    def __init__(self):
+    def __init__(self, res_num: int = 16):
         super().__init__()
+        self.res_num = res_num
 
-        self.net = Generator()
-
+        self.net = Generator(
+            img_feat=3, n_feats=64, kernel_size=3, num_block=self.res_num
+        )
         weights_dir = os.path.join(os.path.dirname(__file__), "weights")
         weights_name = os.path.join(weights_dir, "srgan.pt")
         download_weight(URL_WEIGHT, weights_name)
