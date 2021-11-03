@@ -1,5 +1,7 @@
 Interesting and reproducible research works should be conserved.
-This repository wraps a collection of deep neural network models into a simple and uniform API.
+Unfortunately, too many model repositories provide different ways to use.
+It is an obstacle for people who just want to use them right away, especially for those without luxury to (re)train big deep learning models.
+This repository aims to wrap a collection of deep neural network models into a simple and consistent API.
 
 ## Installation
 
