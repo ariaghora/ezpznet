@@ -64,12 +64,13 @@ def get_model():
 
 class SketchGAN(EzPzNet):
     def __init__(self):
+        super().__init__()
         self.model = get_model()
 
         weights_dir = os.path.join(os.path.dirname(__file__), "weights")
         weights_name = os.path.join(weights_dir, "sketchgan.pt")
         download_weight(URL_WEIGHT, weights_name)
-        self.model.load_state_dict(torch.load(weights_name))
+        self.model.load_state_dict(torch.load(weights_name, map_location=self.device))
 
     def predict(self, X):
         with torch.no_grad():
