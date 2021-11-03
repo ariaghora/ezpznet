@@ -9,7 +9,8 @@ from torch import nn
 
 from ezpznet import EzPzNet, download_weight
 
-URL_WEBTOON = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131925&authkey=AFr6EizN764A3u0"
+URL_FACEPAINT = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131925&authkey=AFr6EizN764A3u0"
+URL_WEBTOON = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131936&authkey=ANfr1Mymnvx-6A0"
 URL_SHINKAI = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131929&authkey=ANQyvelJifvCiU8"
 URL_PAPRIKA = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131930&authkey=ACbm3QKgoAA5w3k"
 URL_HAYAO = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131928&authkey=ALgdQbAiArkG2Sg"
@@ -165,17 +166,21 @@ def load_image(image_path: str, x32=False):
 
 
 class AnimeGAN(EzPzNet):
-    def __init__(self, style: str = "webtoon"):
+    def __init__(self, style: str = "facepaint"):
         super().__init__()
         self.style = style
 
         weights_dir = os.path.join(os.path.dirname(__file__), "weights")
-        weights_name_webtoon = os.path.join(weights_dir, "face_paint_512_v2_0.pt")
+        weights_name_webtoon = os.path.join(weights_dir, "webtoon.pt")
+        weights_name_facepaint = os.path.join(weights_dir, "face_paint_512_v2_0.pt")
         weights_name_shinkai = os.path.join(weights_dir, "shinkai.pt")
         weights_name_paprika = os.path.join(weights_dir, "paprika.pt")
         weights_name_hayao = os.path.join(weights_dir, "hayao.pt")
 
-        if self.style == "webtoon":
+        if self.style == "facepaint":
+            download_weight(URL_FACEPAINT, weights_name_facepaint)
+            weight_path = weights_name_facepaint
+        elif self.style == "webtoon":
             download_weight(URL_WEBTOON, weights_name_webtoon)
             weight_path = weights_name_webtoon
         elif self.style == "shinkai":
