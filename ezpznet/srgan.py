@@ -12,7 +12,7 @@ from ezpznet import EzPzNet, download_weight
 __all__ = ["ResidualConvBlock", "Discriminator", "Generator", "ContentLoss"]
 
 
-URL_WEIGHT = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131932&authkey=AO_wS5DFgp6s4X4"
+URL_WEIGHT = "https://onedrive.live.com/download?cid=5D199F9D83F53944&resid=5D199F9D83F53944%2131933&authkey=AN35B88hQqyn_bE"
 
 
 def load_image(image_path: str):
