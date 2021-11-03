@@ -17,6 +17,8 @@ Let me know if you have better options.
 
 ## Available models
 
+- SketchGAN, AnimeGAN, SRGAN
+
 ### SketchGAN
 
 Simplify rough outline sketch.
@@ -74,3 +76,11 @@ plt.imshow(pred.squeeze(), cmap="gray")
   - PyTorch implementation is adopted from [bryandlee](https://github.com/bryandlee/animegan2-pytorch)
   - Paper: Chen et al., AnimeGAN: A Novel Lightweight GAN for Photo Animation
   
+### SRGAN
+    
+  Upscale the resolution of an image and still keeping the detail, minimizing pixellated parts.
+
+  <p align="center">
+    <img src="https://i.ibb.co/FkpkdBK/sr-comparison.png" width=700/>
+  <p>
+    
