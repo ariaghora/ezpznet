@@ -10,6 +10,11 @@ pip install git+https://github.com/ariaghora/ezpznet
 ```
 It depends mainly on pytorch and torchvision. 
 
+## Pretrained weights
+Each model will download its own pretrained weight (once at the first time) at initialization.
+I host them in my personal OneDrive storage. 
+Let me know if you have better options.
+
 ## Available models
 
 ### SketchGAN
