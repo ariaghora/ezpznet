@@ -5,27 +5,58 @@ This repository wraps a collection of deep neural network models into a simple a
 
 ### SketchGAN
 
-### AnimeGAN
+Simplify rough outline sketch.
 
 ```python
-from ezpznet.animegan import AnimeGAN, load_image
+from ezpznet.sketchgan import SketchGAN, load_image
 
-net = AnimeGAN(style="webtoon")
 image = load_image(image_path)
+net = SketchGAN()
 pred = net.predict(image)
-plt.imshow(pred)
+plt.imshow(pred.squeeze(), cmap="gray")
 ```
-When `style="webtoon"`:
 
 <p align="center">
-  <img src="https://i.ibb.co/c871Qjc/elon.png" width=500/>
+  <img src="https://i.ibb.co/QM8Z9Tb/shinji.png" width=600/>
 <p>
 
-When `style="hayao"`:
+(Art by [Shinji](https://artbyshinji.tumblr.com))
 
-<p align="center">
-  <img src="https://i.ibb.co/wNjc8x6/hayao.png" width=500/>
-<p>
+  **References**
+  - PyTorch implementation is adopted from [bobbens](https://github.com/bobbens/sketch_simplification/)
+  - Paper: Simo-Serra et al., Mastering Sketching: Adversarial Augmentation for Structured Prediction
+
+---
   
+  
+### AnimeGAN
 
-There are 4 styles available: `webtoon` (default), `shinkai`, `hayao`, and `paprika`.
+  Apply anime-ish effect to images.
+
+  ```python
+  from ezpznet.animegan import AnimeGAN, load_image
+
+  net = AnimeGAN(style="webtoon")
+  image = load_image(image_path)
+  pred = net.predict(image)
+  plt.imshow(pred)
+  ```
+  When `style="webtoon"`:
+
+  <p align="center">
+    <img src="https://i.ibb.co/c871Qjc/elon.png" width=600/>
+  <p>
+
+  When `style="hayao"`:
+
+  <p align="center">
+    <img src="https://i.ibb.co/wNjc8x6/hayao.png" width=500/>
+  <p>
+
+
+  There are 4 styles available: `webtoon` (default), `shinkai`, `hayao`, and `paprika`.
+  
+  **References**
+  - PyTorch implementation is adopted from [bryandlee](https://github.com/bryandlee/animegan2-pytorch)
+  - Paper: Chen et al., AnimeGAN: A Novel Lightweight GAN for Photo Animation
+  
