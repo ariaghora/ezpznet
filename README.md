@@ -69,7 +69,7 @@ plt.imshow(pred.squeeze(), cmap="gray")
   <p>
 
 
-  There are 4 styles available: `facepaint` (default), `webtoon`, `shinkai`, `hayao`, and `paprika`.
+  There are several styles available: `facepaint` (default), `webtoon`, `shinkai`, `hayao`, and `paprika`.
   
   **References**
   - PyTorch implementation is adopted from [bryandlee](https://github.com/bryandlee/animegan2-pytorch)
