@@ -200,6 +200,7 @@ class AnimeGAN(EzPzNet):
         self.net.to(self.device).eval()
 
     def predict(self, X):
+        self.net.eval()
         with torch.no_grad():
             X = X.to(self.device)
             out = (

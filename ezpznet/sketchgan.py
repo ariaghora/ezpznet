@@ -73,6 +73,7 @@ class SketchGAN(EzPzNet):
         self.model.load_state_dict(torch.load(weights_name, map_location=self.device))
 
     def predict(self, X):
+        self.model.eval()
         with torch.no_grad():
             return self.model(X)
 

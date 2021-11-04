@@ -227,6 +227,7 @@ class SRGAN(EzPzNet):
         self.net.load_state_dict(torch.load(weights_name, map_location=self.device))
 
     def predict(self, X):
+        self.net.eval()
         with torch.no_grad():
             pred, _ = self.net(X)
             return pred
